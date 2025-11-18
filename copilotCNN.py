@@ -1,6 +1,7 @@
 import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras import layers
+from importDataset import *
 
 # Hyperparameters
 sequence_length = 64     # your requested input length
@@ -36,3 +37,9 @@ model.compile(
 )
 
 model.summary()
+
+#dataset=importDataset()
+#labels=importLabels()
+#print("Dataset shape:", dataset.shape)
+#print("Labels shape:", labels.shape)
+#print("First 40 labels:", labels[:40])
