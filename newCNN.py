@@ -6,7 +6,7 @@ import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras import layers
 import importDataset as iD
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 
 # ---------------------------
 # Config
