@@ -22,4 +22,13 @@ def importDataset():
         selected = df.iloc[1:65, :].to_numpy().T  # shape: (2, 64)
         data_array[i - 1] = selected
 
+    return data_array
     # data_array is now shape (1040, 2, 64)
+
+def importLabels():
+    labels_file = 'signalLabels.csv'
+    df_labels = pd.read_csv(labels_file, header=None)
+    labels_array = df_labels[1].to_numpy().flatten()  # shape: (1040,)
+    return labels_array
+    # labels_array is now shape (1040,)
+
