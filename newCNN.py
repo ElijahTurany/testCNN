@@ -6,7 +6,7 @@ import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras import layers
 import importDataset as iD
-#import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
 
 # ---------------------------
 # Config
@@ -72,20 +72,7 @@ def make_dataset(X, y, batch_size, training=True, shuffle=True):
         ds = ds.shuffle(buffer_size=min(len(X), 10_000), seed=SEED, reshuffle_each_iteration=True)
 
     # Simple normalization/augmentation example for 1D signals
-    def preprocess(x, y):
-        # Standardization per-sample (optional)
-        mean = tf.reduce_mean(x, axis=0, keepdims=True)
-        std = tf.math.reduce_std(x, axis=0, keepdims=True) + 1e-6
-        x = (x - mean) / std
 
-        # Light augmentation (only for training)
-        if training:
-            # small gaussian noise
-            noise = tf.random.normal(shape=tf.shape(x), mean=0.0, stddev=0.01, dtype=x.dtype)
-            x = x + noise
-        return x, y
-
-    ds = ds.map(preprocess, num_parallel_calls=tf.data.AUTOTUNE)
     ds = ds.batch(batch_size).prefetch(tf.data.AUTOTUNE)
     return ds
 
@@ -151,13 +138,6 @@ def make_callbacks():
         mode="max",
         verbose=1
     )
-    early_cb = keras.callbacks.EarlyStopping(
-        monitor="val_accuracy",
-        mode="max",
-        patience=8,
-        restore_best_weights=True,
-        verbose=1
-    )
     tb_cb = keras.callbacks.TensorBoard(
         log_dir=LOG_DIR,
         histogram_freq=1,
@@ -173,7 +153,7 @@ def make_callbacks():
         min_lr=1e-6,
         verbose=1
     )
-    return [ckpt_cb, early_cb, tb_cb, lr_cb]
+    return [ckpt_cb, tb_cb, lr_cb]
 
 # ---------------------------
 # Training orchestration
@@ -255,6 +235,16 @@ def train():
     print("\nClassification Report:")
     print(classification_report(y_val_true, y_val_pred, digits=4))
 
+    
+    # Plot training & validation loss values
+    plt.plot(history.history['loss'], label='Training Loss')
+    plt.plot(history.history['val_loss'], label='Validation Loss')
+
+    plt.title('Loss Curve')
+    plt.xlabel('Epoch')
+    plt.ylabel('Loss')
+    plt.legend()
+    plt.show()
     return model, (X_val, y_val), ds_val
 
 # ---------------------------
