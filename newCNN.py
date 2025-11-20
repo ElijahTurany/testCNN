@@ -5,6 +5,7 @@ import numpy as np
 import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras import layers
+import importDataset as iD
 
 # ---------------------------
 # Config
@@ -42,13 +43,19 @@ if use_mixed_precision:
 # Replace this with your real loader
 # ---------------------------
 def load_data():
+    X = iD.importDataset()[ :, 0].T.reshape(1040, 64, 1)
+    Y = iD.importLabels()
+
+    #print(X.shape)
+    #print(Y.shape)
     """
     Replace with your own dataset loader.
     Return:
-        X: float32 array (num_samples, sequence_length, n_features)
-        y: int32 array (num_samples,) labels in {0, 1}
+        X: float32 array (num_samples, sequence_length, n_features) [1040, 64, 1]
+        y: int32 array (num_samples,) labels in {0, 1} [1040,]
     """
-    num_samples = 5000
+    
+    num_samples = 1040
     X = np.random.randn(num_samples, sequence_length, n_features).astype('float32')
 
     # Synthetic target: class 1 if mean > 0, else class 0
