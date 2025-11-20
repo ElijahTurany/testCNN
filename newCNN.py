@@ -19,8 +19,8 @@ sequence_length = 64       # your 1D length
 n_features = 1             # channels per timestep
 n_classes = 2              # 2 outputs (softmax)
 batch_size = 64
-epochs = 30
-learning_rate = 1e-3
+epochs = 50
+learning_rate = 5e-3
 val_split = 0.2
 use_mixed_precision = False  # set True if using a GPU with Tensor Cores
 
@@ -71,21 +71,6 @@ def make_dataset(X, y, batch_size, training=True, shuffle=True):
     if training and shuffle:
         ds = ds.shuffle(buffer_size=min(len(X), 10_000), seed=SEED, reshuffle_each_iteration=True)
 
-    # Simple normalization/augmentation example for 1D signals
-    def preprocess(x, y):
-        # Standardization per-sample (optional)
-        mean = tf.reduce_mean(x, axis=0, keepdims=True)
-        std = tf.math.reduce_std(x, axis=0, keepdims=True) + 1e-6
-        x = (x - mean) / std
-
-        # Light augmentation (only for training)
-        if training:
-            # small gaussian noise
-            noise = tf.random.normal(shape=tf.shape(x), mean=0.0, stddev=0.01, dtype=x.dtype)
-            x = x + noise
-        return x, y
-
-    ds = ds.map(preprocess, num_parallel_calls=tf.data.AUTOTUNE)
     ds = ds.batch(batch_size).prefetch(tf.data.AUTOTUNE)
     return ds
 
@@ -129,7 +114,7 @@ def build_model(sequence_length=64, n_features=1, n_classes=2, lr=1e-3):
     loss = keras.losses.SparseCategoricalCrossentropy()
     metrics = [
         'accuracy',
-        keras.metrics.SparseCategoricalAccuracy(name='auc')
+        keras.metrics.SparseCategoricalAccuracy(name='val_accuracy')
     ]
 
     opt = keras.optimizers.Adam(learning_rate=lr)
@@ -151,13 +136,6 @@ def make_callbacks():
         mode="max",
         verbose=1
     )
-    early_cb = keras.callbacks.EarlyStopping(
-        monitor="val_accuracy",
-        mode="max",
-        patience=8,
-        restore_best_weights=True,
-        verbose=1
-    )
     tb_cb = keras.callbacks.TensorBoard(
         log_dir=LOG_DIR,
         histogram_freq=1,
@@ -173,7 +151,7 @@ def make_callbacks():
         min_lr=1e-6,
         verbose=1
     )
-    return [ckpt_cb, early_cb, tb_cb, lr_cb]
+    return [ckpt_cb, tb_cb, lr_cb]
 
 # ---------------------------
 # Training orchestration
