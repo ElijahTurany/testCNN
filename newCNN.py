@@ -6,7 +6,7 @@ import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras import layers
 import importDataset as iD
-#import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
 
 # ---------------------------
 # Config
@@ -70,6 +70,8 @@ def make_dataset(X, y, batch_size, training=True, shuffle=True):
     ds = tf.data.Dataset.from_tensor_slices((X, y))
     if training and shuffle:
         ds = ds.shuffle(buffer_size=min(len(X), 10_000), seed=SEED, reshuffle_each_iteration=True)
+
+    # Simple normalization/augmentation example for 1D signals
 
     ds = ds.batch(batch_size).prefetch(tf.data.AUTOTUNE)
     return ds
@@ -233,6 +235,16 @@ def train():
     print("\nClassification Report:")
     print(classification_report(y_val_true, y_val_pred, digits=4))
 
+    
+    # Plot training & validation loss values
+    plt.plot(history.history['loss'], label='Training Loss')
+    plt.plot(history.history['val_loss'], label='Validation Loss')
+
+    plt.title('Loss Curve')
+    plt.xlabel('Epoch')
+    plt.ylabel('Loss')
+    plt.legend()
+    plt.show()
     return model, (X_val, y_val), ds_val
 
 # ---------------------------
