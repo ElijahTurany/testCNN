@@ -20,7 +20,7 @@ n_features = 1             # channels per timestep
 n_classes = 2              # 2 outputs (softmax)
 batch_size = 64
 epochs = 50
-learning_rate = 5e-3
+learning_rate = 1e-3
 val_split = 0.2
 use_mixed_precision = False  # set True if using a GPU with Tensor Cores
 
@@ -116,7 +116,7 @@ def build_model(sequence_length=64, n_features=1, n_classes=2, lr=1e-3):
     loss = keras.losses.SparseCategoricalCrossentropy()
     metrics = [
         'accuracy',
-        keras.metrics.SparseCategoricalAccuracy(name='val_accuracy')
+        keras.metrics.SparseCategoricalAccuracy(name='accuracy')
     ]
 
     opt = keras.optimizers.Adam(learning_rate=lr)
@@ -198,7 +198,7 @@ def train():
     )
 
     # Evaluate
-    eval_results = model.evaluate(ds_val, return_dict=True, verbose=0)
+    eval_results = model.evaluate(ds_val, return_dict=True, verbose=1)
     print("\nValidation metrics:", eval_results)
 
     # ---- Exports ----
@@ -207,21 +207,23 @@ def train():
     model.save(keras_path)
     print(f"Saved Keras model to {keras_path}")
 
-    # Try exporting a SavedModel for serving (Keras 3 provides model.export)
-    export_path = os.path.join(EXPORT_DIR, "savedmodel")
-    try:
-        # Works in Keras 3+
-        model.export(export_path)
-        print(f"Exported inference model (SavedModel) to {export_path}")
-    except AttributeError:
-        # Fallback for TF/Keras 2.x
-        model.save(export_path)
-        print(f"Exported SavedModel to {export_path}")
+    # Not sure what this code does so i commented it out
 
-    # Optional legacy H5 (many tools still accept this)
-    h5_path = os.path.join(EXPORT_DIR, "model.h5")
-    model.save(h5_path)
-    print(f"Also saved legacy H5 model to {h5_path}")
+    # # Try exporting a SavedModel for serving (Keras 3 provides model.export)
+    # export_path = os.path.join(EXPORT_DIR, "savedmodel")
+    # try:
+    #     # Works in Keras 3+
+    #     model.export(export_path)
+    #     print(f"Exported inference model (SavedModel) to {export_path}")
+    # except AttributeError:
+    #     # Fallback for TF/Keras 2.x
+    #     model.save(export_path)
+    #     print(f"Exported SavedModel to {export_path}")
+
+    # # Optional legacy H5 (many tools still accept this)
+    # h5_path = os.path.join(EXPORT_DIR, "model.h5")
+    # model.save(h5_path)
+    # print(f"Also saved legacy H5 model to {h5_path}")
 
     # Confusion matrix
     from sklearn.metrics import confusion_matrix, classification_report
@@ -239,10 +241,12 @@ def train():
     # Plot training & validation loss values
     plt.plot(history.history['loss'], label='Training Loss')
     plt.plot(history.history['val_loss'], label='Validation Loss')
+    plt.plot(history.history['accuracy'], label='Training Accuracy')
+    plt.plot(history.history['val_accuracy'], label='Validation Accuracy')
 
-    plt.title('Loss Curve')
+    plt.title('Accuracy Curve')
     plt.xlabel('Epoch')
-    plt.ylabel('Loss')
+    plt.ylabel('Accuracy/Loss')
     plt.legend()
     plt.show()
     return model, (X_val, y_val), ds_val
