@@ -21,11 +21,13 @@ s = 'print("startpoint")'
 
 # Defs
 numClass = 2
-numEpochs = 100
-lr = 3e-3
+numEpochs = 600
+lr = 1e-3
+
     # trainings considered before weights are changed
     # increasing improves accuracy, increases runtime
 batchSize = 32
+
 # Data shapes expected by the network
 trainDataShape = (624, 64, 1)
 trainLabelsShape = (624, 2)
@@ -100,10 +102,10 @@ def build():
     # Model creation
     model = models.Sequential([
         layers.Input(inputShape),
-        layers.Conv1D(filters=16, kernel_size=8, activation='relu'),
+        layers.Conv1D(filters=16, kernel_size=16, activation='relu'),
         layers.MaxPooling1D(pool_size=2),
         layers.Flatten(),
-        layers.Dense(128, activation='relu'),
+        layers.Dense(32, activation='relu'),
         layers.Dense(numClass, activation='softmax')
     ])
 
@@ -144,4 +146,4 @@ def build():
     plt.show()
 
 print("Time to run: ", timeit.timeit(setup=s, stmt=build, number=1), "s")
-print("Its running")
+print("Its not running")
