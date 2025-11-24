@@ -144,3 +144,4 @@ def build():
     plt.show()
 
 print("Time to run: ", timeit.timeit(setup=s, stmt=build, number=1), "s")
+print("Its running")
