@@ -21,7 +21,6 @@ def importDataset():
         # Extract rows 2-64 (index 1 to 64 exclusive)
         selected = df.iloc[1:65, :].to_numpy().T  # shape: (2, 64)
         data_array[i - 1] = selected
-
     return data_array
     # data_array is now shape (1040, 2, 64)
 
