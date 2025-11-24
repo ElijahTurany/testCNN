@@ -39,8 +39,10 @@ inputShape = (64, 1)
 
 def build():
     # Loading, catagorizing data
-    data = importData.importDataset()
-    labels = importData.importLabels()
+    allData = importData.importDataset()
+    allData = importData.shuffleDataset(allData)
+    data, labels = importData.splitDataLabels(allData)
+    
     print("Data shape: ", data.shape)
     print("Label shape: ", labels.shape)
     print("****************************************")
