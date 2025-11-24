@@ -51,4 +51,10 @@ def test_importDataset():
     for i in range(30):
         print(f"Sample {i+1} data (first 5 values): {dataset[i, :5, 0]}, label: {dataset[i, 64, 0]}")
 
-test_importDataset()
+#test_importDataset()
+
+def splitDataLabels(data):
+    X = data[:, :64, :]  # shape: (1040, 64, 1)
+    y = data[:, 64, 0].astype(int)  # shape: (1040,)
+    return X, y
+
