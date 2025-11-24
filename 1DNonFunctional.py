@@ -25,7 +25,7 @@ numEpochs = 100
 lr = 3e-3
     # trainings considered before weights are changed
     # increasing improves accuracy, increases runtime
-batchSize = 5
+batchSize = 32
 # Data shapes expected by the network
 trainDataShape = (624, 64, 1)
 trainLabelsShape = (624, 2)
@@ -42,7 +42,7 @@ def build():
     allData = importData.importDataset()
     allData = importData.shuffleDataset(allData)
     data, labels = importData.splitDataLabels(allData)
-    
+
     print("Data shape: ", data.shape)
     print("Label shape: ", labels.shape)
     print("****************************************")
@@ -100,7 +100,7 @@ def build():
     # Model creation
     model = models.Sequential([
         layers.Input(inputShape),
-        layers.Conv1D(filters=8, kernel_size=4, activation='relu'),
+        layers.Conv1D(filters=16, kernel_size=8, activation='relu'),
         layers.MaxPooling1D(pool_size=2),
         layers.Flatten(),
         layers.Dense(128, activation='relu'),
