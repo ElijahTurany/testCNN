@@ -2,6 +2,8 @@ print("Its running")
 
 # Imports
 import os
+import glob
+import pandas as pd
 # Resolves a weird error
 os.environ['TF_ENABLE_ONEDNN_OPTS'] = '0'
 import tensorflow as tf
@@ -12,6 +14,19 @@ import matplotlib.pyplot as plt
 import timeit
 
 s = 'print("startpoint")'
+
+csv_files = glob.glob("windowed/*.csv")
+
+extracted_data = []
+
+for file in csv_files:
+    # Read the CSV file
+    df = pd.read_csv(file, header=None)  # header=None if no column names
+    # Extract the second column and take the first 64 values
+    values = df.iloc[:64, 1].tolist()
+    extracted_data.append(values)
+
+print(extracted_data)
 
 # Defs
 numClass = 10
@@ -41,7 +56,6 @@ _testLabelsShape = (10000, 10)
 def build():
     # Loading, catagorizing data
     (train_data, train_labels), (testVal_data, testVal_labels) = mnist.load_data()
-    signalData = 
     print("Train Data Shape: ", train_data.shape)
     print("Train Label Shape: ", train_labels.shape)
     print("Test Data Shape: ", testVal_data.shape)
