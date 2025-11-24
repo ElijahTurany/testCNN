@@ -5,8 +5,13 @@ import os
 import glob
 import pandas as pd
 import numpy as np
+import datetime
 # Resolves a weird error
 os.environ['TF_ENABLE_ONEDNN_OPTS'] = '0'
+RUN_ID = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+BASE_DIR = "."
+CKPT_DIR = os.path.join(BASE_DIR, "checkpoints", RUN_ID)
+os.makedirs(CKPT_DIR, exist_ok=True)
 import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras import layers, models
@@ -60,7 +65,6 @@ def build():
     print("Test Data Shape: ", test_data.shape)
     print("Test Label Shape: ", test_labels.shape)
 
-
     # Image normalization
     #train_data, test_data, val_data = train_data / 255.0, test_data / 255.0, val_data / 255.0
     # Ensure images w/o color have correct array size, comment out for color images
@@ -81,7 +85,6 @@ def build():
     train_data = train_data.reshape(-1, 64, 1)
     val_data = val_data.reshape(-1, 64, 1)
     test_data = test_data.reshape(-1, 64, 1)
-
 
     print("****************************************")
     print("Normalized Train Data Shape: ", train_data.shape)
@@ -117,7 +120,7 @@ def build():
     )
 
     # Training
-    history = model.fit(train_data, train_labels, epochs=numEpochs, batch_size=batchSize, validation_data=(val_data, val_labels))
+    history = model.fit(train_data, train_labels, epochs=numEpochs, callbacks=make_callbacks(), batch_size=batchSize, validation_data=(val_data, val_labels))
 
     # Evaluation
     test_loss, test_acc = model.evaluate(test_data, test_labels)
@@ -144,6 +147,18 @@ def build():
 
     plt.title('Accuracy/Loss')
     plt.show()
+
+def make_callbacks():
+    # Keras 3 requires .weights.h5 for weights-only checkpoints
+    ckpt_cb = keras.callbacks.ModelCheckpoint(
+        filepath=os.path.join(CKPT_DIR, "best.weights.h5"),
+        monitor="val_accuracy",
+        save_best_only=True,
+        save_weights_only=True,
+        mode="max",
+        verbose=1
+    )
+    return [ckpt_cb]
 
 print("Time to run: ", timeit.timeit(setup=s, stmt=build, number=1), "s")
 print("Its not running")
