@@ -4,9 +4,11 @@ print("Its running")
 import os
 import glob
 import pandas as pd
+import numpy as np
 # Resolves a weird error
 os.environ['TF_ENABLE_ONEDNN_OPTS'] = '0'
 import tensorflow as tf
+from tensorflow import keras
 from tensorflow.keras import layers, models
 from tensorflow.keras.datasets import mnist
 from tensorflow.keras.utils import to_categorical
@@ -19,10 +21,11 @@ s = 'print("startpoint")'
 
 # Defs
 numClass = 2
-numEpochs = 50
+numEpochs = 100
+lr = 3e-3
     # trainings considered before weights are changed
     # increasing improves accuracy, increases runtime
-batchSize = 64
+batchSize = 5
 # Data shapes expected by the network
 trainDataShape = (624, 64, 1)
 trainLabelsShape = (624, 2)
@@ -60,11 +63,21 @@ def build():
     #train_data = train_data.reshape(list(train_data.shape) + [1]) 
     #val_data = val_data.reshape(list(val_data.shape) + [1]) 
     #test_data = test_data.reshape(list(test_data.shape) + [1]) 
+    
+    train_data = train_data / np.max(train_data)
+    val_data = val_data / np.max(val_data)
+    test_data = test_data / np.max(test_data)
+
 
     # Puts labels into one-hot, a binary vector holding class
     train_labels = to_categorical(train_labels, numClass)
     val_labels = to_categorical(val_labels, numClass)
     test_labels = to_categorical(test_labels, numClass)
+    
+    train_data = train_data.reshape(-1, 64, 1)
+    val_data = val_data.reshape(-1, 64, 1)
+    test_data = test_data.reshape(-1, 64, 1)
+
 
     print("****************************************")
     print("Normalized Train Data Shape: ", train_data.shape)
@@ -85,7 +98,7 @@ def build():
     # Model creation
     model = models.Sequential([
         layers.Input(inputShape),
-        layers.Conv1D(filters=4, kernel_size=3, activation='relu'),
+        layers.Conv1D(filters=8, kernel_size=4, activation='relu'),
         layers.MaxPooling1D(pool_size=2),
         layers.Flatten(),
         layers.Dense(128, activation='relu'),
@@ -94,7 +107,7 @@ def build():
 
     # Compilation
     model.compile(
-        optimizer='adam',
+        optimizer=keras.optimizers.Adam(learning_rate=lr),
         loss='categorical_crossentropy',
         metrics=['accuracy']
     )
