@@ -12,21 +12,10 @@ from tensorflow.keras.datasets import mnist
 from tensorflow.keras.utils import to_categorical
 import matplotlib.pyplot as plt
 import timeit
+import importDataset as importData
+
 
 s = 'print("startpoint")'
-
-csv_files = glob.glob("windowed/*.csv")
-
-extracted_data = []
-
-for file in csv_files:
-    # Read the CSV file
-    df = pd.read_csv(file, header=None)  # header=None if no column names
-    # Extract the second column and take the first 64 values
-    values = df.iloc[:64, 1].tolist()
-    extracted_data.append(values)
-
-print(extracted_data)
 
 # Defs
 numClass = 10
@@ -55,18 +44,35 @@ _testLabelsShape = (10000, 10)
 
 def build():
     # Loading, catagorizing data
-    (train_data, train_labels), (testVal_data, testVal_labels) = mnist.load_data()
-    print("Train Data Shape: ", train_data.shape)
-    print("Train Label Shape: ", train_labels.shape)
-    print("Test Data Shape: ", testVal_data.shape)
-    print("Test Label Shape: ", testVal_labels.shape)
+    data = importData.importDataset()
+    labels = importData.importLabels()
+    print("Data shape: ", data.shape)
+    print("Label shape: ", labels.shape)
+
+    train_data, train_labels = data[:624], labels[:624]
+    val_data, val_labels = data[624:832], labels[624:832]
+    test_data, test_labels = data[:832], labels[:832]
+
+    print("Normalized Train Data Shape: ", train_data.shape)
+    print("Normalized Train Label Shape: ", train_labels.shape)
+    print("Normalized Test Val Shape: ", val_data.shape)
+    print("Normalized Test Val Shape: ", val_labels.shape)
+    print("Normalized Test Data Shape: ", test_data.shape)
+    print("Normalized Test Label Shape: ", test_labels.shape)
+
+
+    #(train_data, train_labels), (testVal_data, testVal_labels) = mnist.load_data()
+    # print("Train Data Shape: ", train_data.shape)
+    # print("Train Label Shape: ", train_labels.shape)
+    # print("Test Data Shape: ", testVal_data.shape)
+    # print("Test Label Shape: ", testVal_labels.shape)
 
     # Split validation and test data
-    val_data, val_labels = testVal_data[:5000], testVal_labels[:5000]
-    test_data, test_labels = testVal_data[5000:], testVal_labels[5000:]
+    #val_data, val_labels = testVal_data[:5000], testVal_labels[:5000]
+    #test_data, test_labels = testVal_data[5000:], testVal_labels[5000:]
 
     # Image normalization
-    train_data, test_data, val_data = train_data / 255.0, test_data / 255.0, val_data / 255.0
+    #train_data, test_data, val_data = train_data / 255.0, test_data / 255.0, val_data / 255.0
     # Ensure images w/o color have correct array size, comment out for color images
     train_data = train_data.reshape(list(train_data.shape) + [1]) 
     val_data = val_data.reshape(list(val_data.shape) + [1]) 
