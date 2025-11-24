@@ -13,21 +13,41 @@ def importDataset():
     num_columns = 1
 
     # Preallocate array
-    data_array = np.zeros((num_files, rows_per_file, num_columns))
+    data_array = np.zeros((num_files, rows_per_file))
 
+        # Read labels
+    labels_file = 'signalLabels.csv'
+    df_labels = pd.read_csv(labels_file, header=None)
+    labels_array = df_labels[1]#.to_numpy().flatten()  # shape: (1040,)
+    print("early shape: " + str(labels_array.shape))
     for i in range(1, num_files + 1):
         file_path = os.path.join(windowed_dir, f'windowed_{i}.csv')
         df = pd.read_csv(file_path, header=None)
         # Extract rows 2-64 (index 1 to 64 exclusive)
-        selected = df.iloc[:64, 1].to_numpy()  # shape: (64,1)
-        data_array[i - 1] = selected.reshape(list(selected.shape) + [1]) 
+        #data_array
+        #selected = df.iloc[:64, 1]#.to_numpy().T  # shape: (1, 64)
+        data_array[i - 1] = selected
+        
+        # labels_array is now shape (1040,)
     return data_array
-    # data_array is now shape (1040, 64, 1)
+    # data_array is now shape (1040, 64)
 
-def importLabels():
-    labels_file = 'signalLabels.csv'
-    df_labels = pd.read_csv(labels_file, header=None)
-    labels_array = df_labels[1].to_numpy().flatten()  # shape: (1040,)
-    return labels_array
+# def importLabels():
+    # labels_file = 'signalLabels.csv'
+    # df_labels = pd.read_csv(labels_file, header=None)
+    # labels_array = df_labels[1].to_numpy().flatten()  # shape: (1040,)
+    # return labels_array
     # labels_array is now shape (1040,)
+
+# def mergeDatasets():
+#     data = importDataset()
+#     labels = importLabels()
+#     for i in range(data.shape[0]):
+#         data[i, ]
+
+dataset=importDataset()
+print(dataset.shape)
+#first five dataset items
+# for i in range(5):
+#     print(dataset[i])
 
