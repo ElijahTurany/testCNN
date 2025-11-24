@@ -19,7 +19,7 @@ s = 'print("startpoint")'
 
 # Defs
 numClass = 2
-numEpochs = 5
+numEpochs = 50
     # trainings considered before weights are changed
     # increasing improves accuracy, increases runtime
 batchSize = 64
