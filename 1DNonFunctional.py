@@ -30,8 +30,8 @@ numEpochs = 600
 lr = 1e-3
 
     # trainings considered before weights are changed
-    # increasing improves accuracy, increases runtime
-batchSize = 32
+    # increasing improves accuracy, increases runtime, i think
+batchSize = 128
 
 # Data shapes expected by the network
 trainDataShape = (624, 64, 1)
