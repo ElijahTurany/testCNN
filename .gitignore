@@ -1,0 +1,10 @@
+# Ignore virtual environments
+.venv/
+venv/
+
+# Ignore ZIP files
+*.zip
+
+# Ignore Python cache
+__pycache__/
+*.pyc
