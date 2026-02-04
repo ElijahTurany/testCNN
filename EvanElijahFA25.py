@@ -27,8 +27,8 @@ s = 'print("startpoint")'
 
 # Defs
 numClass = 2
-numEpochs = 300
-lr = 1.5e-3
+numEpochs = 1000
+lr = 1e-3
 
     # trainings considered before weights are changed
     # increasing improves accuracy, increases runtime, i think
@@ -107,23 +107,37 @@ def build():
     assert test_data.shape == testDataShape
     assert test_labels.shape == testLabelsShape
 
-    # Model creation
+    # # Model creation
+    # model = models.Sequential([
+    #     layers.Input(inputShape),
+
+    #     layers.Conv1D(filters=32, kernel_size=8),
+    #     layers.Activation("relu"),
+    #     layers.MaxPooling1D(pool_size=2),
+    #     layers.Dropout(0.2),
+
+    #     layers.Conv1D(filters=64, kernel_size=4),
+    #     layers.Activation("relu"),
+    #     layers.MaxPooling1D(pool_size=2),
+    #     layers.Dropout(0.2),
+
+    #     layers.Flatten(),
+    #     layers.Dense(32, activation='relu'),
+    #     layers.Dropout(0.3),
+    #     layers.Dense(numClass, activation='softmax')
+    # ])
+
     model = models.Sequential([
         layers.Input(inputShape),
 
-        layers.Conv1D(filters=32, kernel_size=8),
+        layers.Conv1D(filters=32, kernel_size=8, padding="same"),
         layers.Activation("relu"),
         layers.MaxPooling1D(pool_size=2),
-        layers.Dropout(0.2),
-
-        layers.Conv1D(filters=64, kernel_size=4),
-        layers.Activation("relu"),
-        layers.MaxPooling1D(pool_size=2),
-        layers.Dropout(0.2),
+        layers.Dropout(0.3),
 
         layers.Flatten(),
         layers.Dense(32, activation='relu'),
-        layers.Dropout(0.3),
+        layers.Dropout(0.2),
         layers.Dense(numClass, activation='softmax')
     ])
 
