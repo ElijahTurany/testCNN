@@ -27,7 +27,7 @@ s = 'print("startpoint")'
 
 # Defs
 numClass = 2
-numEpochs = 1000
+numEpochs = 300
 lr = 1e-3
 
     # trainings considered before weights are changed

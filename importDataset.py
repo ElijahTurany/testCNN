@@ -19,7 +19,7 @@ def importDataset():
 
     # Load labels
     
-    print("CWD:", os.getcwd())
+    #print("CWD:", os.getcwd())
     labels_file = 'signalLabels.csv'
     df_labels = pd.read_csv(labels_file, header=None)
     labels_array = df_labels[1].to_numpy().flatten()
@@ -79,12 +79,12 @@ def importFullSignal():
 
 def shuffleDataset(data):
     idx_col = np.arange(len(data)).reshape(-1, 1)
-    print(idx_col)
+    #print(idx_col)
 
     order = np.arange(len(idx_col))
-    print(order)
+    #print(order)
     np.random.shuffle(order)
-    print(idx_col[order])
+    #print(idx_col[order])
   
     return data[order], idx_col[order]
 
