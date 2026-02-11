@@ -27,15 +27,15 @@ s = 'print("startpoint")'
 
 # Defs
 numClass = 2
-numEpochs = 300
-lr = 1e-3
+numEpochs = 450
+lr = 2e-3
 
     # trainings considered before weights are changed
     # increasing improves accuracy, increases runtime, i think
 batchSize = 128
 
 # numsteps per epoch, not used with batch size
-desired_steps = 20
+desired_steps = 35
 
 # Data shapes expected by the network
 trainDataShape = (624, 64, 1)

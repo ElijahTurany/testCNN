@@ -114,14 +114,14 @@ def build_model(num):
     model.build(template.input_shape)
     return model
 
-
+modelNum = 0
 
 output_csv = "grid_results.csv"
 file_exists = os.path.isfile(output_csv)
 with open(output_csv, mode="a", newline="") as f:
     writer = csv.writer(f)
     if not file_exists:
-        writer.writerow(["epochs", "lr", "steps_per_epoch", "best_val_acc", "test_acc", "test_loss", "runtime"])
+        writer.writerow(["modelNum", "epochs", "lr", "steps_per_epoch", "best_val_acc", "test_acc", "test_loss", "false_pos", "false_neg", "runtime"])
 
     for epochs in np.arange(epochsMin, epochsMax+1, epochsStep):
         for lr in np.arange(lrMin, lrMax+.0005, lrStep):
@@ -129,7 +129,7 @@ with open(output_csv, mode="a", newline="") as f:
                 start = time.time()
                 print("Epochs: ", epochs, " lr: ", lr, " steps: ", steps)
 
-                model = build_model(0)
+                model = build_model(modelNum)
 
                 model.compile(
                     optimizer=keras.optimizers.Adam(learning_rate=lr),
@@ -141,6 +141,13 @@ with open(output_csv, mode="a", newline="") as f:
                 best_val_acc = float(max(history.history['val_accuracy']))
                 test_loss, test_acc = model.evaluate(test_data, test_labels)
 
+                # Get predictions
+                y_pred_proba = model.predict(test_data, verbose=0)
+                y_pred = (y_pred_proba > 0.5).astype(int)
+                true = np.argmax(test_labels.astype(int), axis=1)
+                predicted = np.argmax(y_pred, axis=1)
+                cm = confusion_matrix(true, predicted)
+
                 print(f"Best Validation accuracy: {best_val_acc * 100:.2f}%")
                 print(f"Test accuracy: {test_acc * 100:.2f}%")
 
@@ -148,5 +155,5 @@ with open(output_csv, mode="a", newline="") as f:
                 runtime = (end-start)
                 print("Runtime: " + str(runtime))
 
-                writer.writerow([int(epochs), float(lr), int(steps), float(best_val_acc), float(test_acc), float(test_loss), float(runtime)])
+                writer.writerow([int(modelNum), int(epochs), float(lr), int(steps), float(best_val_acc), float(test_acc), float(test_loss), cm[0,1], cm[1,0], float(runtime)])
                 f.flush()
