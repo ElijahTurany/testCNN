@@ -16,7 +16,7 @@ CKPT_DIR = os.path.join(BASE_DIR, "checkpoints", RUN_ID)
 os.makedirs(CKPT_DIR, exist_ok=True)
 import tensorflow as tf
 from tensorflow import keras
-from tensorflow.keras import layers, models
+from tensorflow.keras import layers, models, backend
 from tensorflow.keras.datasets import mnist
 from tensorflow.keras.utils import to_categorical
 from sklearn.metrics import classification_report, confusion_matrix
@@ -114,7 +114,15 @@ def build_model(num):
     model.build(template.input_shape)
     return model
 
-modelNum = 0
+modelNum = 1
+# epochList = [50, 150, 250, 400, 600]
+# lrList = [0.0001, 0.0005, 0.001, .002, .003, .004, .005, .006, .007, .008, .009, .01]
+# stepList = [5, 10, 20, 30, 40, 50]
+
+epochList = [600]
+lrList = [.009, .01]
+stepList = [5, 10, 20, 30, 40, 50]
+
 
 output_csv = "grid_results.csv"
 file_exists = os.path.isfile(output_csv)
@@ -123,21 +131,24 @@ with open(output_csv, mode="a", newline="") as f:
     if not file_exists:
         writer.writerow(["modelNum", "epochs", "lr", "steps_per_epoch", "best_val_acc", "test_acc", "test_loss", "false_pos", "false_neg", "runtime"])
 
-    for epochs in np.arange(epochsMin, epochsMax+1, epochsStep):
-        for lr in np.arange(lrMin, lrMax+.0005, lrStep):
-            for steps in np.arange(stepsMin, stepsMax+1, stepsStep):
+    for epochs in epochList:
+        for lr in lrList:
+            for steps in stepList:
+                keras.backend.clear_session()
                 start = time.time()
                 print("Epochs: ", epochs, " lr: ", lr, " steps: ", steps)
-
                 model = build_model(modelNum)
 
                 model.compile(
                     optimizer=keras.optimizers.Adam(learning_rate=lr),
-                    loss='categorical_crossentropy',
+                    loss=tf.keras.losses.BinaryCrossentropy(from_logits=False),
                     metrics=['accuracy']
                 )
-                #model.summary()
-                history = model.fit(train_data, train_labels, epochs=epochs, callbacks=make_callbacks(), steps_per_epoch=steps, validation_data=(val_data, val_labels))
+                
+                # class_weight: {negative_class: weight, positive_class: weight}
+                class_weight = {0: 2.0, 1: 1.0}  # Increase 1’s weight to reduce FNs
+
+                history = model.fit(train_data, train_labels, epochs=epochs, callbacks=make_callbacks(), steps_per_epoch=steps, validation_data=(val_data, val_labels), class_weight=class_weight)
                 best_val_acc = float(max(history.history['val_accuracy']))
                 test_loss, test_acc = model.evaluate(test_data, test_labels)
 
@@ -147,6 +158,9 @@ with open(output_csv, mode="a", newline="") as f:
                 true = np.argmax(test_labels.astype(int), axis=1)
                 predicted = np.argmax(y_pred, axis=1)
                 cm = confusion_matrix(true, predicted)
+
+                print("False Positives: " + str(cm[0,1]))
+                print("False Negatives: " + str(cm[1,0]))
 
                 print(f"Best Validation accuracy: {best_val_acc * 100:.2f}%")
                 print(f"Test accuracy: {test_acc * 100:.2f}%")
